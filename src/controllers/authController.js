@@ -323,18 +323,68 @@ class AuthController {
   }
 
   /**
+   * POST /api/auth/verify-password-and-send-otp
+   * Xác thực mật khẩu cũ và gửi OTP
+   */
+  async verifyPasswordAndSendOTP(req, res) {
+    try {
+      const { userId, email, oldPassword } = req.body;
+
+      if (!userId && !email) {
+        return res.status(400).json({
+          success: false,
+          message: 'Thiếu thông tin userId hoặc email',
+        });
+      }
+
+      if (!oldPassword) {
+        return res.status(400).json({
+          success: false,
+          message: 'Vui lòng nhập mật khẩu hiện tại',
+        });
+      }
+
+      // Nếu không có userId, tìm user bằng email
+      let userIdToVerify = userId;
+      if (!userIdToVerify && email) {
+        const User = (await import('../models/User.js')).default;
+        const user = await User.findOne({ email });
+        if (user) {
+          userIdToVerify = user._id;
+        }
+      }
+
+      if (!userIdToVerify) {
+        return res.status(404).json({
+          success: false,
+          message: 'Không tìm thấy người dùng',
+        });
+      }
+
+      const result = await authService.verifyOldPasswordAndSendOTP(userIdToVerify, oldPassword);
+
+      return res.status(200).json(result);
+    } catch (error) {
+      console.error('Verify password and send OTP error:', error);
+      return res.status(400).json({
+        success: false,
+        message: error.message || 'Không thể xác thực mật khẩu',
+      });
+    }
+  }
+
+  /**
    * PUT /api/auth/change-password
-   * Đổi mật khẩu
+   * Đổi mật khẩu sau khi xác thực OTP
    */
   async changePassword(req, res) {
     try {
-      const userId = req.user?.id; // Lấy từ JWT middleware
-      const { oldPassword, newPassword } = req.body;
+      const { userId, email, oldPassword, newPassword } = req.body;
 
-      if (!userId) {
-        return res.status(401).json({
+      if (!userId && !email) {
+        return res.status(400).json({
           success: false,
-          message: 'Vui lòng đăng nhập',
+          message: 'Thiếu thông tin userId hoặc email',
         });
       }
 
@@ -352,7 +402,24 @@ class AuthController {
         });
       }
 
-      const result = await authService.changePassword(userId, oldPassword, newPassword);
+      // Nếu không có userId, tìm user bằng email
+      let userIdToChange = userId;
+      if (!userIdToChange && email) {
+        const User = (await import('../models/User.js')).default;
+        const user = await User.findOne({ email });
+        if (user) {
+          userIdToChange = user._id;
+        }
+      }
+
+      if (!userIdToChange) {
+        return res.status(404).json({
+          success: false,
+          message: 'Không tìm thấy người dùng',
+        });
+      }
+
+      const result = await authService.changePassword(userIdToChange, oldPassword, newPassword);
 
       return res.status(200).json(result);
     } catch (error) {

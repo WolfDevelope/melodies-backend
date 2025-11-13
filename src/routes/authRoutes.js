@@ -67,8 +67,15 @@ router.put('/profile', authController.updateProfile);
 router.delete('/account', authController.deleteAccount);
 
 /**
+ * @route   POST /api/auth/verify-password-and-send-otp
+ * @desc    Xác thực mật khẩu cũ và gửi OTP để đổi mật khẩu
+ * @access  Private (cần authentication)
+ */
+router.post('/verify-password-and-send-otp', authController.verifyPasswordAndSendOTP);
+
+/**
  * @route   PUT /api/auth/change-password
- * @desc    Đổi mật khẩu
+ * @desc    Đổi mật khẩu sau khi xác thực OTP
  * @access  Private (cần authentication)
  */
 router.put('/change-password', authController.changePassword);

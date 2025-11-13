@@ -1,5 +1,6 @@
 import User from '../models/User.js';
 import emailService from './emailService.js';
+import bcrypt from 'bcryptjs';
 
 class AuthService {
   /**
@@ -56,8 +57,9 @@ class AuthService {
         throw new Error('Email không tồn tại');
       }
 
-      // Kiểm tra password (trong production nên dùng bcrypt.compare)
-      if (user.password !== password) {
+      // Kiểm tra password với comparePassword method
+      const isPasswordValid = await user.comparePassword(password);
+      if (!isPasswordValid) {
         throw new Error('Mật khẩu không chính xác');
       }
 
@@ -286,7 +288,71 @@ class AuthService {
   }
 
   /**
-   * Đổi mật khẩu
+   * Xác thực mật khẩu cũ và gửi OTP để đổi mật khẩu
+   */
+  async verifyOldPasswordAndSendOTP(userId, oldPassword) {
+    try {
+      const user = await User.findById(userId);
+      if (!user) {
+        throw new Error('Không tìm thấy người dùng');
+      }
+
+      // Xác thực mật khẩu cũ
+      const isPasswordValid = await user.comparePassword(oldPassword);
+      if (!isPasswordValid) {
+        throw new Error('Mật khẩu cũ không chính xác');
+      }
+
+      // Tạo OTP
+      const otp = emailService.generateOTP();
+      
+      // Lưu OTP vào cache
+      emailService.saveOTP(user.email, otp);
+
+      // Gửi email đặt lại mật khẩu
+      await emailService.sendPasswordResetEmail(user.email, otp, user.name);
+
+      return {
+        success: true,
+        message: 'Mã OTP đã được gửi đến email của bạn',
+        email: user.email,
+        name: user.name,
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * TEMPORARY: Hash tất cả plaintext passwords trong database
+   * Chỉ chạy 1 lần để migrate data
+   */
+  async hashExistingPasswords() {
+    try {
+      const users = await User.find({});
+      console.log(`Found ${users.length} users to check`);
+      
+      for (const user of users) {
+        // Kiểm tra xem password đã được hash chưa (bcrypt hash bắt đầu với $2a$ hoặc $2b$)
+        if (!user.password.startsWith('$2')) {
+          console.log(`Hashing password for user: ${user.email}`);
+          const salt = await bcrypt.genSalt(10);
+          user.password = await bcrypt.hash(user.password, salt);
+          await user.save();
+        }
+      }
+      
+      return {
+        success: true,
+        message: 'Đã hash tất cả passwords',
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Đổi mật khẩu sau khi xác thực OTP
    */
   async changePassword(userId, oldPassword, newPassword) {
     try {

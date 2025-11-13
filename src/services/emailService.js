@@ -182,7 +182,7 @@ class EmailService {
             </div>
             <div class="footer">
               <p>Email này được gửi tự động, vui lòng không trả lời.</p>
-              <p>&copy; 2024 Melodies. All rights reserved.</p>
+              <p>&copy; 2025 Melodies. All rights reserved.</p>
             </div>
           </div>
         </body>
@@ -201,6 +201,159 @@ class EmailService {
       console.error('❌ [EmailService] Error code:', error.code);
       console.error('❌ [EmailService] Full error:', error);
       throw new Error('Không thể gửi email xác thực');
+    }
+  }
+
+  /**
+   * Send password reset OTP email
+   * @param {string} email - User email
+   * @param {string} otp - 6-digit OTP code
+   * @param {string} name - User name
+   */
+  async sendPasswordResetEmail(email, otp, name = 'bạn') {
+    const mailOptions = {
+      from: `"Melodies" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: 'Đặt lại mật khẩu Melodies',
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              background-color: #f4f4f4;
+              margin: 0;
+              padding: 0;
+            }
+            .container {
+              max-width: 600px;
+              margin: 40px auto;
+              background-color: #ffffff;
+              border-radius: 8px;
+              overflow: hidden;
+              box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            }
+            .header {
+              background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 50%, #3b82f6 100%);
+              padding: 40px 20px;
+              text-align: center;
+            }
+            .header h1 {
+              color: #ffffff;
+              margin: 0;
+              font-size: 32px;
+            }
+            .content {
+              padding: 40px 30px;
+              text-align: center;
+            }
+            .content p {
+              color: #333333;
+              font-size: 16px;
+              line-height: 1.6;
+              margin: 0 0 20px 0;
+            }
+            .otp-box {
+              background-color: #f8f9fa;
+              border: 2px dashed #ec4899;
+              border-radius: 8px;
+              padding: 20px;
+              margin: 30px 0;
+            }
+            .otp-code {
+              font-size: 36px;
+              font-weight: bold;
+              color: #ec4899;
+              letter-spacing: 8px;
+              margin: 10px 0;
+            }
+            .expiry {
+              color: #666666;
+              font-size: 14px;
+              margin-top: 10px;
+            }
+            .footer {
+              background-color: #f8f9fa;
+              padding: 20px;
+              text-align: center;
+              color: #666666;
+              font-size: 12px;
+            }
+            .warning {
+              background-color: #fff3cd;
+              border-left: 4px solid #ffc107;
+              padding: 15px;
+              margin: 20px 0;
+              text-align: left;
+            }
+            .warning p {
+              margin: 0;
+              color: #856404;
+              font-size: 14px;
+            }
+            .info-box {
+              background-color: #e3f2fd;
+              border-left: 4px solid #2196f3;
+              padding: 15px;
+              margin: 20px 0;
+              text-align: left;
+            }
+            .info-box p {
+              margin: 0;
+              color: #0d47a1;
+              font-size: 14px;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>🔐 Melodies</h1>
+            </div>
+            <div class="content">
+              <p>Xin chào <strong>${name}</strong>,</p>
+              <p>Bạn vừa yêu cầu đặt lại mật khẩu của tài khoản Melodies.</p>
+              <p>Để hoàn tất yêu cầu, vui lòng nhập mã xác thực sau:</p>
+              
+              <div class="otp-box">
+                <div class="otp-code">${otp}</div>
+                <div class="expiry">Mã có hiệu lực trong 10 phút</div>
+              </div>
+
+              <div class="info-box">
+                <p><strong>ℹ️ Lưu ý:</strong></p>
+                <p>• Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này</p>
+                <p>• Tài khoản của bạn vẫn an toàn và không có thay đổi nào được thực hiện</p>
+              </div>
+
+              <div class="warning">
+                <p><strong>⚠️ Bảo mật:</strong></p>
+                <p>• Không chia sẻ mã này với bất kỳ ai</p>
+                <p>• Melodies sẽ không bao giờ yêu cầu mã qua điện thoại</p>
+                <p>• Nếu bạn nghi ngờ có hoạt động đáng ngờ, hãy liên hệ hỗ trợ ngay</p>
+              </div>
+            </div>
+            <div class="footer">
+              <p>Email này được gửi tự động, vui lòng không trả lời.</p>
+              <p>&copy; 2025 Melodies. All rights reserved.</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `,
+    };
+
+    try {
+      console.log('🚀 [EmailService] Sending password reset email...');
+      const transporter = this.getTransporter();
+      const info = await transporter.sendMail(mailOptions);
+      console.log('✅ [EmailService] Password reset email sent! MessageId:', info.messageId);
+      return { success: true, messageId: info.messageId };
+    } catch (error) {
+      console.error('❌ [EmailService] Error sending password reset email:', error.message);
+      throw new Error('Không thể gửi email đặt lại mật khẩu');
     }
   }
 
@@ -243,6 +396,10 @@ class EmailService {
               </div>
               <p>Chúc bạn có những trải nghiệm tuyệt vời cùng Melodies!</p>
             </div>
+          </div>
+          <div class="footer">
+              <p>Email này được gửi tự động, vui lòng không trả lời.</p>
+              <p>&copy; 2025 Melodies. All rights reserved.</p>
           </div>
         </body>
         </html>
