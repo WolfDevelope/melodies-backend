@@ -1,0 +1,33 @@
+### Test API Health
+GET http://localhost:5000/api/health
+
+### Get All Songs
+GET http://localhost:5000/api/songs
+
+### Get Song by ID
+GET http://localhost:5000/api/songs/YOUR_SONG_ID_HERE
+
+### Create Song
+POST http://localhost:5000/api/songs
+Content-Type: application/json
+
+{
+  "title": "Test Song",
+  "artist": "Test Artist",
+  "duration": "3:45"
+}
+
+### Update Song
+PUT http://localhost:5000/api/songs/YOUR_SONG_ID_HERE
+Content-Type: application/json
+
+{
+  "title": "Updated Song Title",
+  "artist": "Updated Artist"
+}
+
+### Delete Song
+DELETE http://localhost:5000/api/songs/YOUR_SONG_ID_HERE
+
+### Get Statistics
+GET http://localhost:5000/api/songs/statistics
