@@ -2,6 +2,8 @@ import express from 'express';
 import authRoutes from './authRoutes.js';
 import songRoutes from './songRoutes.js';
 import artistRoutes from './artistRoutes.js';
+import albumRoutes from './albumRoutes.js';
+import userRoutes from './userRoutes.js';
 
 const router = express.Router();
 
@@ -13,6 +15,12 @@ router.use('/songs', songRoutes);
 
 // Artist routes
 router.use('/artists', artistRoutes);
+
+// Album routes
+router.use('/albums', albumRoutes);
+
+// User routes
+router.use('/users', userRoutes);
 
 // Health check
 router.get('/health', (req, res) => {

@@ -9,7 +9,8 @@
     "start": "node index.js",
     "dev": "nodemon index.js",
     "seed:songs": "node src/scripts/seedSongs.js",
-    "seed:artists": "node src/scripts/seedArtists.js"
+    "seed:artists": "node src/scripts/seedArtists.js",
+    "seed:albums": "node src/scripts/seedAlbums.js"
   },
   "keywords": [],
   "author": "",

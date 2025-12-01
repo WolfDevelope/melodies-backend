@@ -58,6 +58,15 @@ const userSchema = new mongoose.Schema(
     lastLogin: {
       type: Date,
     },
+    role: {
+      type: String,
+      enum: ['user', 'admin'],
+      default: 'user',
+    },
+    avatar: {
+      type: String,
+      default: 'https://images.unsplash.com/photo-1511367461989-f85a21fda167?w=200',
+    },
   },
   {
     timestamps: true, // Tự động tạo createdAt và updatedAt
