@@ -4,8 +4,13 @@ import songRoutes from './songRoutes.js';
 import artistRoutes from './artistRoutes.js';
 import albumRoutes from './albumRoutes.js';
 import userRoutes from './userRoutes.js';
+import categoryRoutes from './categoryRoutes.js';
+import homeRoutes from './homeRoutes.js';
 
 const router = express.Router();
+
+// Home routes (public)
+router.use('/home', homeRoutes);
 
 // Auth routes
 router.use('/auth', authRoutes);
@@ -21,6 +26,9 @@ router.use('/albums', albumRoutes);
 
 // User routes
 router.use('/users', userRoutes);
+
+// Category routes
+router.use('/categories', categoryRoutes);
 
 // Health check
 router.get('/health', (req, res) => {

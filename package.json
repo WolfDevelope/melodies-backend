@@ -10,7 +10,10 @@
     "dev": "nodemon index.js",
     "seed:songs": "node src/scripts/seedSongs.js",
     "seed:artists": "node src/scripts/seedArtists.js",
-    "seed:albums": "node src/scripts/seedAlbums.js"
+    "seed:albums": "node src/scripts/seedAlbums.js",
+    "seed:categories": "node src/scripts/seedCategories.js",
+    "seed:hotsongs": "node src/scripts/seedHotSongs.js",
+    "seed:add-songs-to-categories": "node src/scripts/addSongsToCategories.js"
   },
   "keywords": [],
   "author": "",

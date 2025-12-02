@@ -8,13 +8,13 @@ const songSchema = new mongoose.Schema(
       trim: true,
     },
     artist: {
-      type: String,
-      required: [true, 'Tên nghệ sĩ là bắt buộc'],
-      trim: true,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Artist',
+      required: [true, 'Nghệ sĩ là bắt buộc'],
     },
     album: {
-      type: String,
-      trim: true,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Album',
     },
     genre: {
       type: String,

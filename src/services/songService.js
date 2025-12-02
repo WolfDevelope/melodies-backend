@@ -43,9 +43,11 @@ class SongService {
       const sort = {};
       sort[sortBy] = sortOrder === 'asc' ? 1 : -1;
 
-      // Execute query
+      // Execute query with populate
       const [songs, total] = await Promise.all([
         Song.find(query)
+          .populate('artist', 'name genre bio avatar')
+          .populate('album', 'title genre releaseDate coverImage')
           .sort(sort)
           .skip(skip)
           .limit(parseInt(limit)),
@@ -69,7 +71,9 @@ class SongService {
   // Lấy bài hát theo ID
   async getSongById(songId) {
     try {
-      const song = await Song.findById(songId);
+      const song = await Song.findById(songId)
+        .populate('artist', 'name genre bio avatar')
+        .populate('album', 'title genre releaseDate coverImage');
       if (!song) {
         throw new Error('Không tìm thấy bài hát');
       }
@@ -100,7 +104,9 @@ class SongService {
         songId,
         { $set: updateData },
         { new: true, runValidators: true }
-      );
+      )
+        .populate('artist', 'name genre bio avatar')
+        .populate('album', 'title genre releaseDate coverImage');
 
       if (!song) {
         throw new Error('Không tìm thấy bài hát');
@@ -132,7 +138,9 @@ class SongService {
         songId,
         { $inc: { plays: 1 } },
         { new: true }
-      );
+      )
+        .populate('artist', 'name genre bio avatar')
+        .populate('album', 'title genre releaseDate coverImage');
       if (!song) {
         throw new Error('Không tìm thấy bài hát');
       }
@@ -149,7 +157,9 @@ class SongService {
         songId,
         { $inc: { likes: increment ? 1 : -1 } },
         { new: true }
-      );
+      )
+        .populate('artist', 'name genre bio avatar')
+        .populate('album', 'title genre releaseDate coverImage');
       if (!song) {
         throw new Error('Không tìm thấy bài hát');
       }
@@ -177,6 +187,8 @@ class SongService {
           { $sort: { count: -1 } },
         ]),
         Song.find({ status: 'active' })
+          .populate('artist', 'name genre bio avatar')
+          .populate('album', 'title genre releaseDate coverImage')
           .sort({ plays: -1 })
           .limit(10)
           .select('title artist plays likes thumbnail'),
