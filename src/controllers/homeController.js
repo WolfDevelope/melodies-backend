@@ -7,53 +7,64 @@ import songService from '../services/songService.js';
  */
 export const getHomePageData = async (req, res) => {
   try {
-    // Get categories that should be displayed on homepage
-    const homepageCategoriesResult = await categoryService.getAllCategories({
-      showOnHomepage: true,
-      isActive: true,
-      limit: 20,
-      sortBy: 'order',
-      sortOrder: 'asc',
-    });
-
-    // Get featured categories (fallback if no homepage categories)
-    const featuredResult = await categoryService.getAllCategories({
-      isFeatured: true,
-      isActive: true,
-      limit: 10,
-      sortBy: 'order',
-    });
-
-    // Get all active categories for different sections
-    const allCategoriesResult = await categoryService.getAllCategories({
-      isActive: true,
-      limit: 50,
-      sortBy: 'order',
-    });
-
-    // Get new releases (latest songs)
-    const newReleasesResult = await songService.getAllSongs({}, {
-      status: 'active',
-      limit: 10,
-      sortBy: 'releaseDate',
-      sortOrder: 'desc',
-    });
-
-    // Get trending songs (most played)
-    const trendingResult = await songService.getAllSongs({}, {
-      status: 'active',
-      limit: 10,
-      sortBy: 'plays',
-      sortOrder: 'desc',
-    });
-
-    // Get top songs (most liked)
-    const topSongsResult = await songService.getAllSongs({}, {
-      status: 'active',
-      limit: 10,
-      sortBy: 'likes',
-      sortOrder: 'desc',
-    });
+    // ✅ OPTIMIZATION: Parallel queries with Promise.all
+    // Fetch all data simultaneously instead of sequentially
+    const [
+      homepageCategoriesResult,
+      featuredResult,
+      allCategoriesResult,
+      newReleasesResult,
+      trendingResult,
+      topSongsResult,
+    ] = await Promise.all([
+      // Get categories that should be displayed on homepage
+      categoryService.getAllCategories({
+        showOnHomepage: true,
+        isActive: true,
+        limit: 20,
+        sortBy: 'order',
+        sortOrder: 'asc',
+      }),
+      
+      // Get featured categories (fallback if no homepage categories)
+      categoryService.getAllCategories({
+        isFeatured: true,
+        isActive: true,
+        limit: 10,
+        sortBy: 'order',
+      }),
+      
+      // Get all active categories for different sections
+      categoryService.getAllCategories({
+        isActive: true,
+        limit: 50,
+        sortBy: 'order',
+      }),
+      
+      // Get new releases (latest songs)
+      songService.getAllSongs({}, {
+        status: 'active',
+        limit: 10,
+        sortBy: 'releaseDate',
+        sortOrder: 'desc',
+      }),
+      
+      // Get trending songs (most played)
+      songService.getAllSongs({}, {
+        status: 'active',
+        limit: 10,
+        sortBy: 'plays',
+        sortOrder: 'desc',
+      }),
+      
+      // Get top songs (most liked)
+      songService.getAllSongs({}, {
+        status: 'active',
+        limit: 10,
+        sortBy: 'likes',
+        sortOrder: 'desc',
+      }),
+    ]);
 
     // Organize categories by type
     const allCategories = allCategoriesResult.categories || [];
