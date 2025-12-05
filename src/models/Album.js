@@ -8,10 +8,14 @@ const albumSchema = new mongoose.Schema(
       trim: true,
     },
     artist: {
-      type: String,
-      required: [true, 'Tên nghệ sĩ là bắt buộc'],
-      trim: true,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Artist',
+      required: [true, 'Nghệ sĩ là bắt buộc'],
     },
+    songs: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Song',
+    }],
     genre: {
       type: String,
       enum: ['Pop', 'Ballad', 'Rock', 'EDM', 'R&B', 'Rap', 'Jazz', 'Classical'],
@@ -53,8 +57,18 @@ const albumSchema = new mongoose.Schema(
   }
 );
 
+// Virtual field for song count
+albumSchema.virtual('songCount').get(function() {
+  return this.songs ? this.songs.length : 0;
+});
+
+// Ensure virtual fields are included in JSON
+albumSchema.set('toJSON', { virtuals: true });
+albumSchema.set('toObject', { virtuals: true });
+
 // Indexes để tìm kiếm nhanh hơn
-albumSchema.index({ title: 'text', artist: 'text' });
+albumSchema.index({ title: 'text' });
+albumSchema.index({ artist: 1 });
 albumSchema.index({ status: 1 });
 albumSchema.index({ genre: 1 });
 albumSchema.index({ releaseDate: -1 });

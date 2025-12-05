@@ -1,4 +1,6 @@
 import Song from '../models/Song.js';
+import Artist from '../models/Artist.js';
+import Album from '../models/Album.js';
 
 class SongService {
   // Lấy tất cả bài hát với filter và pagination
@@ -17,13 +19,38 @@ class SongService {
       // Build query
       const query = {};
 
-      // Search by title, artist, or album
+      // Search by title, artist name, or album title
       if (search) {
-        query.$or = [
-          { title: { $regex: search, $options: 'i' } },
-          { artist: { $regex: search, $options: 'i' } },
-          { album: { $regex: search, $options: 'i' } },
-        ];
+        try {
+          // Search for artists matching the search term
+          const artists = await Artist.find({
+            name: { $regex: search, $options: 'i' }
+          }).select('_id');
+          const artistIds = artists.map(a => a._id);
+
+          // Search for albums matching the search term
+          const albums = await Album.find({
+            title: { $regex: search, $options: 'i' }
+          }).select('_id');
+          const albumIds = albums.map(a => a._id);
+
+          // Build OR query for title, artist IDs, or album IDs
+          query.$or = [
+            { title: { $regex: search, $options: 'i' } },
+          ];
+          
+          if (artistIds.length > 0) {
+            query.$or.push({ artist: { $in: artistIds } });
+          }
+          
+          if (albumIds.length > 0) {
+            query.$or.push({ album: { $in: albumIds } });
+          }
+        } catch (error) {
+          // If Artist or Album models don't exist, just search by title
+          console.log('Search by artist/album not available:', error.message);
+          query.title = { $regex: search, $options: 'i' };
+        }
       }
 
       // Filter by status

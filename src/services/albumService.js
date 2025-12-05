@@ -1,4 +1,5 @@
 import Album from '../models/Album.js';
+import Artist from '../models/Artist.js';
 
 class AlbumService {
   // Lấy tất cả albums với filter và pagination
@@ -17,12 +18,28 @@ class AlbumService {
       // Build query
       const query = {};
 
-      // Search by title or artist
+      // Search by title or artist name
       if (search) {
-        query.$or = [
-          { title: { $regex: search, $options: 'i' } },
-          { artist: { $regex: search, $options: 'i' } },
-        ];
+        try {
+          // Search for artists matching the search term
+          const artists = await Artist.find({
+            name: { $regex: search, $options: 'i' }
+          }).select('_id');
+          const artistIds = artists.map(a => a._id);
+
+          // Build OR query for title or artist IDs
+          query.$or = [
+            { title: { $regex: search, $options: 'i' } },
+          ];
+          
+          if (artistIds.length > 0) {
+            query.$or.push({ artist: { $in: artistIds } });
+          }
+        } catch (error) {
+          // If Artist model doesn't exist, just search by title
+          console.log('Search by artist not available:', error.message);
+          query.title = { $regex: search, $options: 'i' };
+        }
       }
 
       // Filter by status
@@ -45,6 +62,8 @@ class AlbumService {
       // Execute query
       const [albums, total] = await Promise.all([
         Album.find(query)
+          .populate('artist', 'name genre avatar')
+          .populate('songs', '_id title')
           .sort(sort)
           .skip(skip)
           .limit(parseInt(limit)),
@@ -68,7 +87,9 @@ class AlbumService {
   // Lấy album theo ID
   async getAlbumById(albumId) {
     try {
-      const album = await Album.findById(albumId);
+      const album = await Album.findById(albumId)
+        .populate('artist', 'name genre avatar')
+        .populate('songs', '_id title artist duration');
       if (!album) {
         throw new Error('Không tìm thấy album');
       }

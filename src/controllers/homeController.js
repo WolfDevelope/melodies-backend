@@ -12,7 +12,8 @@ export const getHomePageData = async (req, res) => {
       showOnHomepage: true,
       isActive: true,
       limit: 20,
-      sortBy: 'homepageOrder',
+      sortBy: 'order',
+      sortOrder: 'asc',
     });
 
     // Get featured categories (fallback if no homepage categories)

@@ -8,6 +8,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
     "dev": "nodemon index.js",
+    "seed": "node src/scripts/seedCompleteData.js",
     "seed:songs": "node src/scripts/seedSongs.js",
     "seed:artists": "node src/scripts/seedArtists.js",
     "seed:albums": "node src/scripts/seedAlbums.js",

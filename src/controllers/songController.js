@@ -18,7 +18,8 @@ class SongController {
 
       res.status(200).json({
         success: true,
-        data: result.songs,
+        songs: result.songs,
+        data: result.songs, // Keep for backward compatibility
         pagination: result.pagination,
       });
     } catch (error) {

@@ -50,6 +50,8 @@ class ArtistService {
       // Execute query
       const [artists, total] = await Promise.all([
         Artist.find(query)
+          .populate('songs', '_id title')
+          .populate('albums', '_id title coverImage')
           .sort(sort)
           .skip(skip)
           .limit(parseInt(limit)),
@@ -73,7 +75,9 @@ class ArtistService {
   // Lấy nghệ sĩ theo ID
   async getArtistById(artistId) {
     try {
-      const artist = await Artist.findById(artistId);
+      const artist = await Artist.findById(artistId)
+        .populate('songs', '_id title album duration')
+        .populate('albums', '_id title coverImage releaseDate');
       if (!artist) {
         throw new Error('Không tìm thấy nghệ sĩ');
       }

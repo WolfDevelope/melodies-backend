@@ -82,11 +82,16 @@ export const getAllCategories = async (filters = {}) => {
       })
       .populate({
         path: 'albums',
-        select: 'title artist genre releaseDate coverImage'
+        select: 'title artist genre releaseDate coverImage songs',
+        populate: [
+          { path: 'artist', select: 'name' },
+          { path: 'songs', select: '_id' }
+        ]
       })
       .populate({
         path: 'artists',
-        select: 'name genre bio avatar'
+        select: 'name genre bio avatar image songs',
+        populate: { path: 'songs', select: '_id' }
       })
       .sort(sort)
       .skip(skip)
