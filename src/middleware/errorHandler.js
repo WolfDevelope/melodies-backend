@@ -7,12 +7,14 @@ const errorHandler = (err, req, res, next) => {
   // Mongoose validation error
   if (err.name === 'ValidationError') {
     const errors = Object.values(err.errors).map((e) => e.message);
-    console.error('Validation errors:', errors);
-    console.error('Full error:', err);
+    console.error('❌ Validation errors:', errors);
+    console.error('❌ Full error:', JSON.stringify(err, null, 2));
+    console.error('❌ Error details:', err);
     return res.status(400).json({
       success: false,
       message: 'Dữ liệu không hợp lệ',
       errors,
+      details: err.message, // Add more details
     });
   }
 

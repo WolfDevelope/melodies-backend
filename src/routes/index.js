@@ -6,6 +6,7 @@ import albumRoutes from './albumRoutes.js';
 import userRoutes from './userRoutes.js';
 import categoryRoutes from './categoryRoutes.js';
 import homeRoutes from './homeRoutes.js';
+import playlistRoutes from './playlistRoutes.js';
 
 const router = express.Router();
 
@@ -29,6 +30,9 @@ router.use('/users', userRoutes);
 
 // Category routes
 router.use('/categories', categoryRoutes);
+
+// Playlist routes
+router.use('/playlists', playlistRoutes);
 
 // Health check
 router.get('/health', (req, res) => {
