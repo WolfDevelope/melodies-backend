@@ -5,6 +5,9 @@ dotenv.config();
 // Sau khi load .env, mới import các module khác
 import express from 'express';
 import cors from 'cors';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
 import connectDB from './src/config/database.js';
 import routes from './src/routes/index.js';
 import errorHandler from './src/middleware/errorHandler.js';
@@ -13,6 +16,13 @@ import errorHandler from './src/middleware/errorHandler.js';
 connectDB();
 
 const app = express();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const uploadsDir = path.join(__dirname, '..', 'uploads');
+const audioUploadsDir = path.join(uploadsDir, 'audio');
+fs.mkdirSync(audioUploadsDir, { recursive: true });
 
 // Middleware
 // CORS configuration - Allow all origins in development
@@ -25,6 +35,8 @@ app.use(cors({
 
 app.use(express.json()); // Đọc JSON từ body request
 app.use(express.urlencoded({ extended: true })); // Đọc form data
+
+app.use('/uploads', express.static(uploadsDir));
 
 // Routes
 app.get('/', (req, res) => {

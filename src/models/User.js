@@ -67,6 +67,14 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: 'https://images.unsplash.com/photo-1511367461989-f85a21fda167?w=200',
     },
+    followedArtists: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Artist',
+    }],
+    favoriteAlbums: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Album',
+    }],
   },
   {
     timestamps: true, // Tự động tạo createdAt và updatedAt

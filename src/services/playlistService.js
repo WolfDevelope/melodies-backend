@@ -25,7 +25,14 @@ class PlaylistService {
    */
   async getUserPlaylists(userId) {
     const playlists = await Playlist.find({ userId })
-      .populate('songs', 'title artist album image duration')
+      .populate({
+        path: 'songs',
+        select: 'title artist album image duration',
+        populate: [
+          { path: 'artist', select: 'name' },
+          { path: 'album', select: 'title' }
+        ]
+      })
       .sort({ createdAt: -1 });
 
     return playlists;
@@ -36,7 +43,14 @@ class PlaylistService {
    */
   async getPlaylistById(playlistId, userId) {
     const playlist = await Playlist.findOne({ _id: playlistId, userId })
-      .populate('songs', 'title artist album image duration');
+      .populate({
+        path: 'songs',
+        select: 'title artist album image duration',
+        populate: [
+          { path: 'artist', select: 'name' },
+          { path: 'album', select: 'title' }
+        ]
+      });
 
     if (!playlist) {
       throw new Error('Playlist not found');

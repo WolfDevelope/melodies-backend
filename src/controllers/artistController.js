@@ -1,6 +1,38 @@
 import artistService from '../services/artistService.js';
+import User from '../models/User.js';
 
 class ArtistController {
+  // GET /api/artists/followed - Lấy danh sách nghệ sĩ user đang theo dõi
+  async getFollowedArtists(req, res, next) {
+    try {
+      const requestedUserId = req.user?._id || req.query.userId || '674f1234567890abcdef1234';
+
+      let user = await User.findById(requestedUserId)
+        .populate('followedArtists')
+        .select('followedArtists');
+
+      if (!user) {
+        user = await User.findOne({})
+          .populate('followedArtists')
+          .select('followedArtists');
+      }
+
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: 'Người dùng không tồn tại.',
+        });
+      }
+
+      res.status(200).json({
+        success: true,
+        data: user?.followedArtists || [],
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   // GET /api/artists - Lấy danh sách nghệ sĩ
   async getAllArtists(req, res, next) {
     try {
@@ -90,11 +122,37 @@ class ArtistController {
   // POST /api/artists/:id/follow - Tăng followers
   async followArtist(req, res, next) {
     try {
-      const artist = await artistService.incrementFollowers(req.params.id);
+      const requestedUserId = req.user?._id || req.body.userId || '674f1234567890abcdef1234';
+      const artistId = req.params.id;
+
+      let user = await User.findById(requestedUserId).select('followedArtists');
+      if (!user) {
+        user = await User.findOne({}).select('followedArtists');
+      }
+
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: 'Người dùng không tồn tại.',
+        });
+      }
+
+      const alreadyFollowed = (user.followedArtists || []).some(
+        (id) => String(id) === String(artistId)
+      );
+
+      if (!alreadyFollowed) {
+        await User.findByIdAndUpdate(user._id, { $addToSet: { followedArtists: artistId } });
+        await artistService.incrementFollowers(artistId);
+      }
+
+      const updatedUser = await User.findById(user._id)
+        .populate('followedArtists')
+        .select('followedArtists');
 
       res.status(200).json({
         success: true,
-        data: artist,
+        data: updatedUser?.followedArtists || [],
       });
     } catch (error) {
       next(error);
@@ -104,11 +162,37 @@ class ArtistController {
   // POST /api/artists/:id/unfollow - Giảm followers
   async unfollowArtist(req, res, next) {
     try {
-      const artist = await artistService.decrementFollowers(req.params.id);
+      const requestedUserId = req.user?._id || req.body.userId || '674f1234567890abcdef1234';
+      const artistId = req.params.id;
+
+      let user = await User.findById(requestedUserId).select('followedArtists');
+      if (!user) {
+        user = await User.findOne({}).select('followedArtists');
+      }
+
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: 'Người dùng không tồn tại.',
+        });
+      }
+
+      const wasFollowed = (user.followedArtists || []).some(
+        (id) => String(id) === String(artistId)
+      );
+
+      if (wasFollowed) {
+        await User.findByIdAndUpdate(user._id, { $pull: { followedArtists: artistId } });
+        await artistService.decrementFollowers(artistId);
+      }
+
+      const updatedUser = await User.findById(user._id)
+        .populate('followedArtists')
+        .select('followedArtists');
 
       res.status(200).json({
         success: true,
-        data: artist,
+        data: updatedUser?.followedArtists || [],
       });
     } catch (error) {
       next(error);

@@ -74,7 +74,7 @@ export const getAllCategories = async (filters = {}) => {
     const categories = await Category.find(query)
       .populate({
         path: 'songs',
-        select: 'title artist album image duration',
+        select: 'title artist album thumbnail audioUrl duration',
         populate: [
           { path: 'artist', select: 'name genre avatar' },
           { path: 'album', select: 'title coverImage' }

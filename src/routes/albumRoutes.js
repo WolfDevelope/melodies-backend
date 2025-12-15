@@ -5,8 +5,11 @@ const router = express.Router();
 
 // Public routes
 router.get('/', albumController.getAllAlbums);
+router.get('/favorites', albumController.getFavoriteAlbums);
 router.get('/statistics', albumController.getStatistics);
 router.get('/:id', albumController.getAlbumById);
+router.post('/:id/favorite', albumController.favoriteAlbum);
+router.post('/:id/unfavorite', albumController.unfavoriteAlbum);
 router.post('/:id/play', albumController.incrementPlays);
 router.post('/:id/like', albumController.toggleLike);
 

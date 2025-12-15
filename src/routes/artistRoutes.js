@@ -5,6 +5,7 @@ const router = express.Router();
 
 // Public routes
 router.get('/', artistController.getAllArtists);
+router.get('/followed', artistController.getFollowedArtists);
 router.get('/statistics', artistController.getStatistics);
 router.get('/:id', artistController.getArtistById);
 router.post('/:id/follow', artistController.followArtist);
