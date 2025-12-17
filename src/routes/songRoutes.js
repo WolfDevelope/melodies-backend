@@ -9,9 +9,19 @@ const router = express.Router();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const uploadsDir = path.join(__dirname, '..', '..', '..', 'uploads');
+const uploadsDir = process.env.VERCEL
+  ? path.join('/tmp', 'uploads')
+  : path.join(__dirname, '..', '..', '..', 'uploads');
 const audioUploadsDir = path.join(uploadsDir, 'audio');
-fs.mkdirSync(audioUploadsDir, { recursive: true });
+try {
+  fs.mkdirSync(audioUploadsDir, { recursive: true });
+} catch (err) {
+  console.error('Failed to create audio upload directory:', {
+    audioUploadsDir,
+    code: err?.code,
+    message: err?.message,
+  });
+}
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
