@@ -27,7 +27,13 @@ try {
 
 app.use(
   cors({
-    origin: '*',
+    origin: (origin, cb) => {
+      if (!origin) {
+        cb(null, true);
+        return;
+      }
+      cb(null, origin);
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
