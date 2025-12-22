@@ -1,6 +1,16 @@
 import playlistService from '../services/playlistService.js';
 
 class PlaylistController {
+  constructor() {
+    this.createPlaylist = this.createPlaylist.bind(this);
+    this.getUserPlaylists = this.getUserPlaylists.bind(this);
+    this.getPlaylistById = this.getPlaylistById.bind(this);
+    this.updatePlaylistInfo = this.updatePlaylistInfo.bind(this);
+    this.addSongToPlaylist = this.addSongToPlaylist.bind(this);
+    this.removeSongFromPlaylist = this.removeSongFromPlaylist.bind(this);
+    this.deletePlaylist = this.deletePlaylist.bind(this);
+  }
+
   getRequestUserId(req) {
     return (
       req.user?._id ||
